@@ -1,0 +1,14 @@
+{
+	"cSpell.ignorePaths": [
+		"**/package-lock.json",
+		"**/node_modules/**",
+		"**/vscode-extension/**",
+		"**/.git/**",
+		".vscode",
+		"typings",
+		".gitignore"
+	],
+	"cSpell.words": [
+		"ECMASCRIPT"
+	]
+}
