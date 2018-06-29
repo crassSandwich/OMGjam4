@@ -18,8 +18,8 @@
 		"test": "mocha",
 		"test-serve": "npm test  &&  npm run build  &&  npx http-server dist",
 		"start": "npx webpack-serve ./webpack.base.config.js --content src",
-		"deploy": "butler push dist crass-sandwich/untitled:html",
-		"status": "butler status crass-sandwich/untitled"
+		"deploy": "butler push dist crass-sandwich/hooked:html",
+		"status": "butler status crass-sandwich/hooked"
 	},
 	"author": "crass_sandwich",
 	"license": "ISC"
