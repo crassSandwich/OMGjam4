@@ -26,7 +26,7 @@ scene.add(light);
 let delta = new THREE.Clock();
 
 for (let i = 0; i < 50; i++) {
-	Towers.Spawn(scene);
+	scene.add(Towers.Next());
 }
 
 function mainLoop () {
@@ -34,9 +34,9 @@ function mainLoop () {
 	renderer.render(scene, camera);
 	requestAnimationFrame(mainLoop);
 
-	if (camera.position.distanceTo(Towers.Queue.peek().position) >= 100) {
-		Towers.Queue.dequeue();
-		Towers.Spawn(scene);
+	if (camera.position.distanceTo(Towers.Backmost().position) >= 100) {
+		Towers.RemoveBackmost();
+		scene.add(Towers.Next());
 	}
 
 	camera.position.z += 100 * dt;
