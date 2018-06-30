@@ -1,7 +1,7 @@
 // useful for webpack-serve
 
 module.exports = {
-	mode: 'production',
+	mode: process.env.NODE_ENV || 'development',
     entry: './src/index.js',
     output: {
         path: __dirname + '/dist',
