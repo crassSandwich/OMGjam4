@@ -1,17 +1,17 @@
-const THREE = require('three');
-const QUEUE = require('queue-fifo');
+import { BoxBufferGeometry, MeshStandardMaterial, Mesh, Object3D } from 'three';
+import QUEUE from 'queue-fifo';
 
 // proto generator that makes tower-pairs
 
-let towerBox = new THREE.BoxBufferGeometry(5, 300, 5);
-let towerMat = new THREE.MeshStandardMaterial();
-let towerMesh = new THREE.Mesh(towerBox, towerMat);
+let towerBox = new BoxBufferGeometry(5, 300, 5);
+let towerMat = new MeshStandardMaterial();
+let towerMesh = new Mesh(towerBox, towerMat);
 
 let towerTopComponent = towerMesh.clone();
 towerTopComponent.position.y = 155;
 let towerBottomComponent = towerMesh.clone();
 towerBottomComponent.position.y = -150;
-let tower = new THREE.Object3D();
+let tower = new Object3D();
 tower.add(towerTopComponent, towerBottomComponent);
 
 let towerLeft = tower.clone();
@@ -19,7 +19,7 @@ towerLeft.position.x = 7;
 let towerRight = tower.clone();
 towerRight.position.x = -7;
 
-let towerPair = new THREE.Object3D();
+let towerPair = new Object3D();
 towerPair.add(towerLeft, towerRight);
 
 let nextTowerZ = 0;

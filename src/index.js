@@ -1,4 +1,4 @@
-const THREE = require('three');
+import * as THREE from 'three';
 import * as Towers from './towers.js';
 
 let renderer = new THREE.WebGLRenderer();
