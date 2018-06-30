@@ -10,6 +10,6 @@ before_deploy:
 deploy:
   skip_cleanup: true
   provider: script
-  script: npm run build  &&  npm run deploy
+  script: npm run deploy
   on:
     branch: release
