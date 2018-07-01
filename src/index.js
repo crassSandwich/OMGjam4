@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import * as Towers from './towers.js';
+import TowerGenerator from './tower-generator';
 import Player from './player.js';
+import * as CANNON from 'cannon';
 
 let renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -8,6 +9,9 @@ document.body.appendChild(renderer.domElement);
 
 let scene = new THREE.Scene();
 scene.background = new THREE.Color(0xff9900);
+
+let world = new CANNON.World();
+world.gravity.set(0, 0, -9.82);
 
 let camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.y = 1.5;
@@ -25,12 +29,10 @@ scene.add(light);
 
 let delta = new THREE.Clock();
 
-let TowerContainer = new THREE.Object3D();
-TowerContainer.name = "Towers";
-scene.add(TowerContainer);
+let Towers = new TowerGenerator(scene, world);
 
 for (let i = 0; i < 50; i++) {
-	TowerContainer.add(Towers.Next());
+	Towers.SpawnNext();
 }
 
 let PlayerObject = new THREE.Object3D();
@@ -47,9 +49,9 @@ function mainLoop () {
 	renderer.render(scene, camera);
 	requestAnimationFrame(mainLoop);
 	
-	if (camera.position.distanceTo(Towers.Backmost().position) >= 100) {
-		TowerContainer.remove(Towers.PopBackmost());
-		TowerContainer.add(Towers.Next());
+	if (PlayerObject.position.distanceTo(Towers.Backmost().position) >= 100) {
+		Towers.PopBackmost();
+		Towers.SpawnNext();
 	}
 	
 	PlayerControls.update(dt);

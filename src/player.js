@@ -80,6 +80,7 @@ export default function (body, camera, domElement) {
 	function onMouseMove (event) {
 		if (self.debug) console.log('player mouse move');
 
+		// TODO: better cross-browser support here
 		self.mouseX += event.movementX;
 		self.mouseY += event.movementY;
 
