@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import TowerGenerator from './tower-generator';
 import Player from './player.js';
 import * as CANNON from 'cannon';
+import {slipperyContact} from './physics-constants.js';
 
 let renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -11,10 +12,8 @@ let scene = new THREE.Scene();
 scene.background = new THREE.Color(0xff9900);
 
 let world = new CANNON.World();
-world.gravity.set(0, 0, -9.82);
-
-let camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.y = 1.5;
+world.gravity.set(0, -90, 0);
+world.addContactMaterial(slipperyContact);
 
 scene.fog = new THREE.Fog(scene.background, 30, 137);
 
@@ -35,26 +34,24 @@ for (let i = 0; i < 50; i++) {
 	Towers.SpawnNext();
 }
 
-let PlayerObject = new THREE.Object3D();
-PlayerObject.rotation.y = 180 * THREE.Math.DEG2RAD; // face z+
-PlayerObject.add(camera);
-scene.add(PlayerObject);
-let PlayerControls = new Player(PlayerObject, camera, renderer.domElement);
+let player = new Player(renderer.domElement, scene, world);
 
 let axesHelper = new THREE.AxesHelper(10);
 scene.add(axesHelper);
 
 function mainLoop () {
 	let dt = delta.getDelta();
-	renderer.render(scene, camera);
-	requestAnimationFrame(mainLoop);
+	world.step(dt);
 	
-	if (PlayerObject.position.distanceTo(Towers.Backmost().position) >= 100) {
+	if (player.root.position.z - Towers.Backmost().position.z >= 100) {
 		Towers.PopBackmost();
 		Towers.SpawnNext();
 	}
 	
-	PlayerControls.update(dt);
+	player.update(dt);
+
+	renderer.render(scene, player.camera);
+	requestAnimationFrame(mainLoop);
 }
 
 mainLoop();

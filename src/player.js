@@ -1,12 +1,30 @@
-// import { Camera, Object3D } from 'three';
+import { Vector3, Math as THREEMath, PerspectiveCamera, Object3D } from 'three';
+import * as CANNON from 'cannon';
+import {slipperyMaterial} from './physics-constants.js';
 
-export default function (body, camera, domElement) {
+export default function (domElement, scene, world) {
 	
 	let self = this;
 	
 	//#region fields
-	self.body = body;
-	self.camera = camera;
+	self.root = new Object3D();
+	self.root.position.set(-7, 5, 0);
+	self.root.rotation.y = 180 * THREEMath.DEG2RAD; // face z+
+	scene.add(self.root);
+
+	self.camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+	self.camera.position.setY(1.5);
+	self.root.add(self.camera);
+
+	self.rigidbody = new CANNON.Body({
+		mass: 80,
+		shape: new CANNON.Sphere(.8), // note that the player is essentially rolling around
+		position: new CANNON.Vec3().copy(self.root.position),
+		quaternion: new CANNON.Quaternion().copy(self.root.quaternion),
+		linearDamping: .997,
+		material: slipperyMaterial
+	});
+	world.add(self.rigidbody);
 
 	self.debug = false;
 
@@ -14,7 +32,8 @@ export default function (body, camera, domElement) {
 
 	self.enabled = true;
 
-	self.movementSpeed = 1.0;
+	self.movementForce = 2000;
+	self.topSpeed2 = 400;
 	self.lookSpeed = .1;
 	
 	self.constrainVertical = true;
@@ -35,18 +54,25 @@ export default function (body, camera, domElement) {
 	//#region methods
 	self.update = function (delta) {
 		if (self.enabled === false) return;
+		
+		if (self.rigidbody.velocity.lengthSquared() < self.topSpeed2) {
+			let actualMoveSpeed = delta * self.movementForce;
+			let zForce = 0, xForce = 0;
 
-		let actualMoveSpeed = delta * self.movementSpeed;
+			if (self.moveForward) zForce = -actualMoveSpeed;
+			if (self.moveBackward) zForce = actualMoveSpeed;
+			
+			if (self.moveLeft) xForce = -actualMoveSpeed;
+			if (self.moveRight) xForce = actualMoveSpeed;
 
-		if (self.moveForward) self.body.translateZ(- actualMoveSpeed);
-		if (self.moveBackward) self.body.translateZ(actualMoveSpeed);
+			let impulse = new CANNON.Vec3().copy(new Vector3(xForce, 0, zForce).applyQuaternion(self.root.quaternion));
 
-		if (self.moveLeft) self.body.translateX(- actualMoveSpeed);
-		if (self.moveRight) self.body.translateX(actualMoveSpeed);
-
+			self.rigidbody.applyImpulse(impulse, CANNON.Vec3.ZERO);
+		}
+		
 		let actualLookSpeed = delta * self.lookSpeed;
-
-		self.body.rotateY(- self.mouseX * actualLookSpeed);
+		
+		self.root.rotateY(- self.mouseX * actualLookSpeed);
 		self.camera.rotateX(- self.mouseY * actualLookSpeed);
 		
 		self.mouseX = 0;
@@ -55,6 +81,8 @@ export default function (body, camera, domElement) {
 		if (self.constrainVertical) {
 			self.camera.rotation.x = Math.min(Math.max(self.camera.rotation.x, self.verticalMin), self.verticalMax);
 		}
+		
+		self.root.position.copy(self.rigidbody.position);
 	};
 	//#endregion
 	
@@ -81,8 +109,8 @@ export default function (body, camera, domElement) {
 		if (self.debug) console.log('player mouse move');
 
 		// TODO: better cross-browser support here
-		self.mouseX += event.movementX;
-		self.mouseY += event.movementY;
+		self.mouseX = event.movementX;
+		self.mouseY = event.movementY;
 
 		event.preventDefault();
 		event.stopPropagation();

@@ -1,12 +1,13 @@
 import { BoxBufferGeometry, MeshStandardMaterial, Mesh, Object3D, Vector3 } from 'three';
 import QUEUE from 'queue-fifo';
 import * as CANNON from 'cannon';
+import {slipperyMaterial} from './physics-constants.js';
 
 // proto generator that makes tower-pairs
 
 let towerPositions = [
-	{x: 7, y: 155, name: 'top left'},
-	{x: -7, y: 155, name: 'top right'},
+	{x: 7, y: 160, name: 'top left'},
+	{x: -7, y: 160, name: 'top right'},
 	{x: 7, y: -150, name: 'bottom left'},
 	{x: -7, y: -150, name: 'bottom right'}
 ]
@@ -38,7 +39,8 @@ export default function (scene, world) {
 			mesh.userData.rigidbody = new CANNON.Body({
 				mass: 0,
 				shape: towerBox_phys,
-				position: new CANNON.Vec3(pos.x, pos.y, nextTowerZ)
+				position: new CANNON.Vec3(pos.x, pos.y, nextTowerZ),
+				material: slipperyMaterial
 			});
 
 			world.add(mesh.userData.rigidbody);
