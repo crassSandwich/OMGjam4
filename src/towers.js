@@ -9,15 +9,19 @@ let towerMesh = new Mesh(towerBox, towerMat);
 
 let towerTopComponent = towerMesh.clone();
 towerTopComponent.position.y = 155;
+towerTopComponent.name = "Top";
 let towerBottomComponent = towerMesh.clone();
 towerBottomComponent.position.y = -150;
+towerBottomComponent.name = "Bottom";
 let tower = new Object3D();
 tower.add(towerTopComponent, towerBottomComponent);
 
 let towerLeft = tower.clone();
 towerLeft.position.x = 7;
+towerLeft.name = "Left";
 let towerRight = tower.clone();
 towerRight.position.x = -7;
+towerRight.name = "Right";
 
 let towerPair = new Object3D();
 towerPair.add(towerLeft, towerRight);
@@ -42,6 +46,6 @@ export function Backmost () {
 	return Queue.peek();
 }
 
-export function RemoveBackmost () {
-	Queue.dequeue();
+export function PopBackmost () {
+	return Queue.dequeue();
 }

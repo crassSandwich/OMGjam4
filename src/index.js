@@ -19,14 +19,19 @@ let light = new THREE.DirectionalLight();
 light.position.y = 5;
 let lightTarget = new THREE.Object3D();
 lightTarget.position.z = 2;
+lightTarget.name = "LightTarget";
 scene.add(lightTarget);
 light.target = lightTarget;
 scene.add(light);
 
 let delta = new THREE.Clock();
 
+let TowerContainer = new THREE.Object3D();
+TowerContainer.name = "Towers";
+scene.add(TowerContainer);
+
 for (let i = 0; i < 50; i++) {
-	scene.add(Towers.Next());
+	TowerContainer.add(Towers.Next());
 }
 
 function mainLoop () {
@@ -35,8 +40,8 @@ function mainLoop () {
 	requestAnimationFrame(mainLoop);
 
 	if (camera.position.distanceTo(Towers.Backmost().position) >= 100) {
-		Towers.RemoveBackmost();
-		scene.add(Towers.Next());
+		TowerContainer.remove(Towers.PopBackmost());
+		TowerContainer.add(Towers.Next());
 	}
 
 	camera.position.z += 100 * dt;
