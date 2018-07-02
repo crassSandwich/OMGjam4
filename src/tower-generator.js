@@ -21,13 +21,19 @@ towers.name = 'towers';
 let nextTowerZ = 0;
 let Queue = new QUEUE();
 
-export default function (scene, world) {
-	scene.add(towers);
+export default function () {
+	this.root = towers;
 	
-	this.SpawnNext = function() {
+	this.Next = function() {
 		let res = new Object3D();
 		res.position.setZ(nextTowerZ);
 		res.name = 'tower pair'
+
+		res.userData.rigidbody = new CANNON.Body({
+			mass: 0,
+			material: slipperyMaterial
+		});
+		res.userData.rigidbody.position.set(0, 0, nextTowerZ);
 
 		for (let i = 0; i < towerPositions.length; i++) {
 			let pos = towerPositions[i];
@@ -36,14 +42,8 @@ export default function (scene, world) {
 			mesh.position.set(pos.x, pos.y, 0);
 			mesh.name = pos.name;
 
-			mesh.userData.rigidbody = new CANNON.Body({
-				mass: 0,
-				shape: towerBox_phys,
-				position: new CANNON.Vec3(pos.x, pos.y, nextTowerZ),
-				material: slipperyMaterial
-			});
+			res.userData.rigidbody.addShape(towerBox_phys, new CANNON.Vec3(pos.x, pos.y));
 
-			world.add(mesh.userData.rigidbody);
 			res.add(mesh);
 		}
 
@@ -51,18 +51,19 @@ export default function (scene, world) {
 		nextTowerZ += 14;
 
 		towers.add(res);
+
+		return res;
 	}
 
-	this.Backmost = function () {
+	this.Peek = function () {
 		let res = Queue.peek();
 		return res;
 	}
 	
-	this.PopBackmost = function () {
-		let pair = Queue.dequeue();
-		towers.remove(pair);
-		for (let i = 0; i < pair.children.length; i++)
-			world.remove(pair.children[i].userData.rigidbody);
+	this.Pop = function () {
+		let res = Queue.dequeue();
+		towers.remove(res);
+		return res;
 	}
 
 }

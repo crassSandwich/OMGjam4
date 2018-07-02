@@ -2,15 +2,15 @@ import { Vector3, Math as THREEMath, PerspectiveCamera, Object3D } from 'three';
 import * as CANNON from 'cannon';
 import {slipperyMaterial} from './physics-constants.js';
 
-export default function (domElement, scene, world) {
+export default function (domElement) {
 	
 	let self = this;
 	
 	//#region fields
 	self.root = new Object3D();
+	self.root.name = 'player';
 	self.root.position.set(-7, 5, 0);
 	self.root.rotation.y = 180 * THREEMath.DEG2RAD; // face z+
-	scene.add(self.root);
 
 	self.camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
 	self.camera.position.setY(1.5);
@@ -18,17 +18,17 @@ export default function (domElement, scene, world) {
 
 	self.rigidbody = new CANNON.Body({
 		mass: 80,
-		shape: new CANNON.Sphere(.8), // note that the player is essentially rolling around
+		shape: new CANNON.Sphere(.8), // note that the player is basically a hamster
 		position: new CANNON.Vec3().copy(self.root.position),
 		quaternion: new CANNON.Quaternion().copy(self.root.quaternion),
 		linearDamping: .997,
 		material: slipperyMaterial
 	});
-	world.add(self.rigidbody);
 
 	self.debug = false;
 
 	self.domElement = domElement;
+	self.domElement.setAttribute('tabindex', - 1);
 
 	self.enabled = true;
 
@@ -48,8 +48,6 @@ export default function (domElement, scene, world) {
 	self.moveLeft = false;
 	self.moveRight = false;
 	//#endregion
-	
-	self.domElement.setAttribute('tabindex', - 1);
 	
 	//#region methods
 	self.update = function (delta) {

@@ -4,6 +4,7 @@ import Player from './player.js';
 import * as CANNON from 'cannon';
 import {slipperyContact} from './physics-constants.js';
 
+//#region init
 let renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -31,27 +32,41 @@ let delta = new THREE.Clock();
 let Towers = new TowerGenerator(scene, world);
 
 for (let i = 0; i < 50; i++) {
-	Towers.SpawnNext();
+	spawnTowers();
 }
 
-let player = new Player(renderer.domElement, scene, world);
+let player = new Player(renderer.domElement);
+scene.add(player.root);
+world.addBody(player.rigidbody);
 
 let axesHelper = new THREE.AxesHelper(10);
 scene.add(axesHelper);
+//#endregion
 
-function mainLoop () {
+function spawnTowers () {
+	let towerPair = Towers.Next();
+	scene.add(towerPair);
+	world.add(towerPair.userData.rigidbody);
+}
+
+function despawnTowers () {
+	let towerPair = Towers.Pop();
+	scene.remove(towerPair);
+	world.remove(towerPair.userData.rigidbody);
+}
+
+(function mainLoop () {
+
 	let dt = delta.getDelta();
 	world.step(dt);
 	
-	if (player.root.position.z - Towers.Backmost().position.z >= 100) {
-		Towers.PopBackmost();
-		Towers.SpawnNext();
+	if (player.root.position.z - Towers.Peek().position.z >= 100) {
+		despawnTowers();
 	}
 	
 	player.update(dt);
 
 	renderer.render(scene, player.camera);
 	requestAnimationFrame(mainLoop);
-}
 
-mainLoop();
+})();
