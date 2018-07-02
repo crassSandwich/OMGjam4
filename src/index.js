@@ -16,6 +16,10 @@ let world = new CANNON.World();
 world.gravity.set(0, -90, 0);
 world.addContactMaterial(slipperyContact);
 
+// set this low enough that unfocusing the window doesn't glitch the simulation (due to long dt), but high enough that stutters aren't noticable
+// TODO: can this be more sophisticated?
+let maxPhysTime = .03;
+
 scene.fog = new THREE.Fog(scene.background, 30, 137);
 
 let light = new THREE.DirectionalLight();
@@ -58,7 +62,7 @@ function despawnTowers () {
 (function mainLoop () {
 
 	let dt = delta.getDelta();
-	world.step(dt);
+	world.step(Math.min(dt, maxPhysTime));
 	
 	if (player.root.position.z - Towers.Peek().position.z >= 100) {
 		despawnTowers();
